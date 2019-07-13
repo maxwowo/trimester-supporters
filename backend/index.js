@@ -29,6 +29,11 @@ router.get("/test", (req, res) => {
   res.send({ test: "hello world" });
 });
 
+function parse(str) {
+  var json = JSON.parse(str);
+  return json.route.shape.shapePoints;
+}
+
 router.get("/route", (req, res) => {
   // getUser();
   axios
