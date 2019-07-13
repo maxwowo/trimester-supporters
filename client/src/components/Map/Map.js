@@ -6,6 +6,9 @@ import DeckGL, { GeoJsonLayer } from "deck.gl";
 import Geocoder from "react-map-gl-geocoder";
 import Axios from "axios";
 import PolylineOverlay from "./PolylineOverlay/PolylineOverlay";
+import { Button } from "antd";
+import { List, Typography, Layout } from "antd";
+import "./Map.less";
 
 // Please be a decent human and don't abuse my Mapbox API token.
 // If you fork this sandbox, replace my API token with your own.
@@ -22,8 +25,11 @@ class Map extends Component {
     },
     searchResultLayer: null,
     startCoord: null,
+    startName: null,
+    endName: null,
     endCoord: null,
-    points: []
+    points: [],
+    favourite_routes: []
   };
 
   mapRef = React.createRef();
@@ -45,7 +51,9 @@ class Map extends Component {
   };
 
   handleOnStartResult = event => {
+    console.log(event);
     this.setState({ startCoord: event.result.geometry.coordinates });
+    this.setState({ startName: event.result.place_name });
     if (this.state.startCoord !== null && this.state.endCoord !== null) {
       Axios.get("/api/route", {
         params: {
@@ -85,7 +93,12 @@ class Map extends Component {
   };
 
   handleOnEndResult = event => {
-    this.setState({ endCoord: event.result.geometry.coordinates });
+    if (event.result === undefined) {
+      this.setState({ endCoord: event.ok });
+    } else {
+      this.setState({ endCoord: event.result.geometry.coordinates });
+      this.setState({ endName: event.result.place_name });
+    }
     if (this.state.startCoord !== null && this.state.endCoord !== null) {
       Axios.get("/api/route", {
         params: {
@@ -154,8 +167,57 @@ class Map extends Component {
             position="top-left"
           />
 
-          <PolylineOverlay points={this.state.points}/>
+          <PolylineOverlay points={this.state.points} style={{}}/>
           <DeckGL {...viewport} layers={[searchResultLayer]}/>
+
+          <div style={{
+            backgroundColor: "white",
+            width: "20%",
+            height: "100vh",
+            textAlign: "center",
+            paddingTop: 120,
+            position: "absolute",
+            zIndex: 0
+          }}>
+            {this.state.startCoord && this.state.endCoord &&
+            <Button
+              style={{ marginBottom: 20, display: "block", margin: "auto", width: "90%" }}
+              onClick={() => {
+                this.setState({
+                  favourite_routes: [...this.state.favourite_routes, {
+                    from: this.state.startName,
+                    to: this.state.endName,
+                    fromCoord: this.state.startCoord,
+                    toCoord: this.state.endCoord
+                  }]
+                });
+              }}
+            >Save this
+              trip
+            </Button>
+            }
+            {this.state.favourite_routes.length !== 0 &&
+            <Typography.Title level={3} style={{marginTop: 20}}>Favourite routes</Typography.Title>
+            }
+            {this.state.favourite_routes.map((route, i) => (
+              <div style={{
+                width: "80%",
+                borderBottom: "1px solid lightgray",
+                margin: "auto",
+                position: "relative",
+                zIndex: 0
+              }}
+                   className="linkDiv"
+                   key={i}
+                   onClick={() => {
+                     this.handleOnEndResult({ ok: [route.fromCoord, route.endCoord] });
+                   }}
+              >
+                <Typography.Paragraph>From: {route.from}</Typography.Paragraph>
+                <Typography.Paragraph>To: {route.to}</Typography.Paragraph>
+              </div>
+            ))}
+          </div>
         </MapGL>
       </div>
     );
