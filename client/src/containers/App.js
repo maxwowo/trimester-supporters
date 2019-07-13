@@ -1,6 +1,5 @@
 import React from "react";
 import Axios from "axios";
-import Navbar from "../components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Layout } from "antd";
 import Routes from "../Routes";
@@ -12,8 +11,7 @@ function App() {
   return (
     <Router>
       <Layout id="app-layout">
-        <Navbar/>
-        <Layout style={{height: "100%"}}>
+        <Layout style={{ height: "100%" }}>
           <Routes/>
         </Layout>
       </Layout>
