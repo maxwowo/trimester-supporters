@@ -41,9 +41,10 @@ function parseAlternate(str) {
 
 router.get("/route", (req, res) => {
   // getUser();
+  const { start, end } = req.query;
   axios
     .get(
-      "https://www.mapquestapi.com/directions/v2/alternateroutes?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&from=-33.92403%2C+151.2226&to=-33.92301%2C+151.2255&outFormat=json&ambiguities=check&routeType=pedestrian&maxRoutes=10&timeOverage=200&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false&unit=M"
+      `https://www.mapquestapi.com/directions/v2/alternateroutes?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&from=${start[1]}%2C+${start[0]}&to=${end[1]}%2C+${end[0]}&outFormat=json&ambiguities=check&routeType=pedestrian&maxRoutes=10&timeOverage=200&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false&unit=M`
     )
     .then(result => {
       const everything = [];
