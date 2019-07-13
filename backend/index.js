@@ -51,25 +51,18 @@ router.get("/route", (req, res) => {
           axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + b.join(",")).then(result3 => {
             const ep1 = result2.data.elevationProfile;
             const ep2 = result3.data.elevationProfile;
-            const h1 = [];
-            const h2 = [];
-            let d1 = 0;
-            let d2 = 0;
+            let alpha1 = 0;
+            let alpha2 = 0;
 
-            for (let i = 0; i < ep1.length; i++) {
-              h1.push(ep1[i].height);
-              d1 += ep1[i].distance;
+            for (let i = 1; i < ep1.length; i++) {
+              alpha1 = Math.max((ep1[i].distance - ep1[i - 1].distance) * (ep1[i].height - ep1[i - 1].height));
             }
 
-            for (let i = 0; i < ep2.length; i++) {
-              h2.push(ep2[i].height);
-              d2 += ep2[i].distance;
+            for (let i = 1; i < ep2.length; i++) {
+              alpha2 = Math.max((ep2[i].distance - ep2[i - 1].distance) * (ep2[i].height - ep2[i - 1].height));
             }
 
-            const diff1 = Math.max(...h1) - Math.min(...h1);
-            const diff2 = Math.max(...h2) - Math.min(...h2);
-
-            return (d1 * diff1) - (d2 * diff2);
+            return alpha1 - alpha2;
           });
         });
       });
