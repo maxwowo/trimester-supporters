@@ -4,13 +4,14 @@ import React, { Component } from "react";
 import MapGL from "react-map-gl";
 import DeckGL, { GeoJsonLayer } from "deck.gl";
 import Geocoder from "react-map-gl-geocoder";
+import Axios from "axios";
 import PolylineOverlay from "./PolylineOverlay/PolylineOverlay";
 
 // Please be a decent human and don't abuse my Mapbox API token.
 // If you fork this sandbox, replace my API token with your own.
 // Ways to set Mapbox token: https://uber.github.io/react-map-gl/#/Documentation/getting-started/about-mapbox-tokens
 const MAPBOX_TOKEN =
-  "pk.eyJ1Ijoic21peWFrYXdhIiwiYSI6ImNqcGM0d3U4bTB6dWwzcW04ZHRsbHl0ZWoifQ.X9cvdajtPbs9JDMG-CMDsA";
+  "pk.eyJ1IjoibWF4d293byIsImEiOiJjankwdmNkMmswMXFsM2luem1ncGgxeHpoIn0.Djlh8L7Ux6y0sE_pYssJ6g";
 
 class Map extends Component {
   state = {
@@ -20,8 +21,9 @@ class Map extends Component {
       zoom: 8
     },
     searchResultLayer: null,
-    startCoord: null,
-    endCoord: null
+    startCoord: [-33.92403, 151.22263],
+    endCoord: [-33.92301, 151.22595],
+    points: []
   };
 
   mapRef = React.createRef();
@@ -43,8 +45,13 @@ class Map extends Component {
   };
 
   handleOnStartResult = event => {
-    this.setState({endCoord: event.result.geometry.coordinates});
-    console.log(this.state.startCoord)
+    this.setState({ startCoord: event.result.geometry.coordinates });
+    if (this.state.startCoord !== null && this.state.endCoord !== null) {
+      Axios.get("/api/route")
+        .then(
+          res => this.setState({ points: res.data.route }
+          ));
+    }
     this.setState({
       searchResultLayer: new GeoJsonLayer({
         id: "search-result",
@@ -58,7 +65,13 @@ class Map extends Component {
   };
 
   handleOnEndResult = event => {
-    this.setState({startCoord: event.result.geometry.coordinates});
+    this.setState({ endCoord: event.result.geometry.coordinates });
+    if (this.state.startCoord !== null && this.state.endCoord !== null) {
+      Axios.get("/api/route")
+        .then(
+          res => this.setState({ points: res.data.route }
+          ));
+    }
     this.setState({
       searchResultLayer: new GeoJsonLayer({
         id: "search-result",
@@ -100,52 +113,55 @@ class Map extends Component {
             placeholder="End location"
             position="top-left"
           />
-          <PolylineOverlay points={[
-            [
-              2.98828125,
-              60.58696734225869
-            ],
-            [
-              -30.761718749999996,
-              58.63121664342478
-            ],
-            [
-              -66.62109375,
-              43.96119063892024
-            ],
-            [
-              -69.2578125,
-              17.14079039331665
-            ],
-            [
-              -41.1328125,
-              7.18810087117902
-            ],
-            [
-              -7.55859375,
-              9.275622176792112
-            ],
-            [
-              17.75390625,
-              23.40276490540795
-            ],
-            [
-              16.5234375,
-              40.84706035607122
-            ],
-            [
-              15.468749999999998,
-              53.225768435790194
-            ],
-            [
-              6.15234375,
-              59.62332522313024
-            ],
-            [
-              15.292968749999998,
-              60.58696734225869
-            ]
-          ]}/>
+
+          <PolylineOverlay points={[...this.state.points]}/>
+
+          {/*<PolylineOverlay points={[*/}
+          {/*  [*/}
+          {/*    2.98828125,*/}
+          {/*    60.58696734225869*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    -30.761718749999996,*/}
+          {/*    58.63121664342478*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    -66.62109375,*/}
+          {/*    43.96119063892024*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    -69.2578125,*/}
+          {/*    17.14079039331665*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    -41.1328125,*/}
+          {/*    7.18810087117902*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    -7.55859375,*/}
+          {/*    9.275622176792112*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    17.75390625,*/}
+          {/*    23.40276490540795*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    16.5234375,*/}
+          {/*    40.84706035607122*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    15.468749999999998,*/}
+          {/*    53.225768435790194*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    6.15234375,*/}
+          {/*    59.62332522313024*/}
+          {/*  ],*/}
+          {/*  [*/}
+          {/*    15.292968749999998,*/}
+          {/*    60.58696734225869*/}
+          {/*  ]*/}
+          {/*]}/>*/}
           <DeckGL {...viewport} layers={[searchResultLayer]}/>
         </MapGL>
       </div>
