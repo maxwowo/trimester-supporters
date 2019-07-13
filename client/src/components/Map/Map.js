@@ -47,7 +47,12 @@ class Map extends Component {
   handleOnStartResult = event => {
     this.setState({ startCoord: event.result.geometry.coordinates });
     if (this.state.startCoord !== null && this.state.endCoord !== null) {
-      Axios.get("/api/route")
+      Axios.get("/api/route", {
+        params: {
+          start: this.state.startCoord,
+          end: this.state.endCoord
+        }
+      })
         .then(
           res => this.setState({ points: res.data.route }
           ));
@@ -67,7 +72,12 @@ class Map extends Component {
   handleOnEndResult = event => {
     this.setState({ endCoord: event.result.geometry.coordinates });
     if (this.state.startCoord !== null && this.state.endCoord !== null) {
-      Axios.get("/api/route")
+      Axios.get("/api/route", {
+        params: {
+          start: this.state.startCoord,
+          end: this.state.endCoord
+        }
+      })
         .then(
           res => this.setState({ points: res.data.route }
           ));
