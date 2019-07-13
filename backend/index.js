@@ -2,7 +2,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
-const mysql = require("mysql2");
 
 /* App initialization */
 const API_PORT = 3001;
