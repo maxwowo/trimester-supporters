@@ -67,23 +67,20 @@ router.get("/route", (req, res) => {
         });
       });
 
-      // for (let i = 0; i < everything.length; i++) {
-      //   axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + everything[i].join(",")).then(result2 => {
-      //     const elevationProfile = result2.data.elevationProfile;
-      //     const heights = [];
-      //
-      //     for (let i = 0; i < elevationProfile.length; i++) {
-      //       heights.push(elevationProfile[i].height);
-      //     }
-      //
-      //     const diff = Math.max(...heights) - Math.min(...heights);
-      //
-      //     if (diff < 3) {
-      //       res.send({ route: everything[i] });
-      //     }
-      //   });
-      // }
-      res.send({ route: everything[0] });
+      axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + everything[0].join(",")).then(result2 => {
+        const ep = result2.data.elevationProfile;
+        let max_instantaneous_change = 0;
+
+        for (let i = 1; i < ep.length; i++) {
+          max_instantaneous_change = Math.max(max_instantaneous_change, ep[i - 1].height - ep[i].height);
+        }
+
+        if (max_instantaneous_change > 8) {
+          res.send({ route: everything[0], freakout: true });
+        } else {
+          res.send({ route: everything[0], freakout: false });
+        }
+      });
     });
   // res.send({ route: getUser() });
 });

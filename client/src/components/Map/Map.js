@@ -16,9 +16,9 @@ const MAPBOX_TOKEN =
 class Map extends Component {
   state = {
     viewport: {
-      latitude: 37.7577,
-      longitude: -122.4376,
-      zoom: 8
+      latitude: -33.9173,
+      longitude: 151.2313,
+      zoom: 10
     },
     searchResultLayer: null,
     startCoord: null,
@@ -54,8 +54,23 @@ class Map extends Component {
         }
       })
         .then(
-          res => this.setState({ points: res.data.route }
-          ));
+          res => {
+            const returned_array = [...res.data.route];
+
+            if (res.data.freakout) {
+              alert("There is a segment which is too steep, we suggest using public transport.");
+              return;
+            }
+
+            const route = [];
+            for (let i = 1; i < returned_array.length; i += 2) {
+              const a = returned_array[i - 1];
+              const b = returned_array[i];
+              route.push([b, a]);
+            }
+
+            this.setState({ points: route });
+          });
     }
     this.setState({
       searchResultLayer: new GeoJsonLayer({
@@ -81,7 +96,12 @@ class Map extends Component {
         .then(
           res => {
             const returned_array = [...res.data.route];
-            console.log(returned_array);
+
+            if (res.data.freakout) {
+              alert("There is a segment which is too steep, we suggest using public transport.");
+              return;
+            }
+
             const route = [];
             for (let i = 1; i < returned_array.length; i += 2) {
               const a = returned_array[i - 1];
