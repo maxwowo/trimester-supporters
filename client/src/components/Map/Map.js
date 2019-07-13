@@ -19,7 +19,9 @@ class Map extends Component {
       longitude: -122.4376,
       zoom: 8
     },
-    searchResultLayer: null
+    searchResultLayer: null,
+    startCoord: null,
+    endCoord: null
   };
 
   mapRef = React.createRef();
@@ -40,8 +42,23 @@ class Map extends Component {
     });
   };
 
-  handleOnResult = event => {
-    console.log(event.result);
+  handleOnStartResult = event => {
+    this.setState({endCoord: event.result.geometry.coordinates});
+    console.log(this.state.startCoord)
+    this.setState({
+      searchResultLayer: new GeoJsonLayer({
+        id: "search-result",
+        data: event.result.geometry,
+        getFillColor: [255, 0, 0, 128],
+        getRadius: 1000,
+        pointRadiusMinPixels: 10,
+        pointRadiusMaxPixels: 10
+      })
+    });
+  };
+
+  handleOnEndResult = event => {
+    this.setState({startCoord: event.result.geometry.coordinates});
     this.setState({
       searchResultLayer: new GeoJsonLayer({
         id: "search-result",
@@ -69,9 +86,18 @@ class Map extends Component {
         >
           <Geocoder
             mapRef={this.mapRef}
-            onResult={this.handleOnResult}
+            onResult={this.handleOnStartResult}
             onViewportChange={this.handleGeocoderViewportChange}
             mapboxApiAccessToken={MAPBOX_TOKEN}
+            placeholder="Start location"
+            position="top-left"
+          />
+          <Geocoder
+            mapRef={this.mapRef}
+            onResult={this.handleOnEndResult}
+            onViewportChange={this.handleGeocoderViewportChange}
+            mapboxApiAccessToken={MAPBOX_TOKEN}
+            placeholder="End location"
             position="top-left"
           />
           <PolylineOverlay points={[
