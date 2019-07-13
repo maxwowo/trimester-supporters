@@ -46,14 +46,31 @@ router.get("/route", (req, res) => {
       "https://www.mapquestapi.com/directions/v2/alternateroutes?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&from=-33.92403%2C+151.2226&to=-33.92301%2C+151.2255&outFormat=json&ambiguities=check&routeType=pedestrian&maxRoutes=10&timeOverage=200&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false&unit=M"
     )
     .then(result => {
-      let resp = result.data.route.shape.shapePoints;
+      const everything = [];
+      everything.push(result.data.route.shape.shapePoints);
 
-      for (let i = 0; i < resp.length; i++) {
-        console.log(resp[i]);
+      for (let i = 0; i < result.data.route.alternateRoutes.length; i++) {
+        everything.push(result.data.route.alternateRoutes[i].route.shape.shapePoints);
       }
-      res.send(result.data);
-    });
 
+      for (let i = 0; i < everything.length; i++) {
+        axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + everything[i].join(",")).then(result2 => {
+          const elevationProfile = result2.data.elevationProfile;
+          const heights = [];
+
+          for (let i = 0; i < elevationProfile.length; i++) {
+            heights.push(elevationProfile[i].height);
+          }
+
+          const diff = Math.max(...heights) - Math.min(...heights);
+
+          if (diff < 3) {
+            res.send({ route: everything[i] });
+          }
+        });
+      }
+      res.send({ route: everything[0] });
+    });
   // res.send({ route: getUser() });
 });
 

@@ -7,7 +7,6 @@ import Routes from "../Routes";
 import "./App.less";
 
 function App() {
-  Axios.get("/api/test").then(res => console.log(res));
   return (
     <Router>
       <Layout id="app-layout">

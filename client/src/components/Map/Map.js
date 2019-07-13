@@ -21,8 +21,8 @@ class Map extends Component {
       zoom: 8
     },
     searchResultLayer: null,
-    startCoord: [-33.92403, 151.22263],
-    endCoord: [-33.92301, 151.22595],
+    startCoord: null,
+    endCoord: null,
     points: []
   };
 
@@ -79,8 +79,18 @@ class Map extends Component {
         }
       })
         .then(
-          res => this.setState({ points: res.data.route }
-          ));
+          res => {
+            const returned_array = [...res.data.route];
+            console.log(returned_array);
+            const route = [];
+            for (let i = 1; i < returned_array.length; i += 2) {
+              const a = returned_array[i - 1];
+              const b = returned_array[i];
+              route.push([b, a]);
+            }
+
+            this.setState({ points: route });
+          });
     }
     this.setState({
       searchResultLayer: new GeoJsonLayer({
@@ -124,7 +134,7 @@ class Map extends Component {
             position="top-left"
           />
 
-          <PolylineOverlay points={[...this.state.points]}/>
+          <PolylineOverlay points={this.state.points}/>
 
           {/*<PolylineOverlay points={[*/}
           {/*  [*/}
