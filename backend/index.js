@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(logger("dev"));
 
 router.get("/test", (req, res) => {
-  res.send({test: "hello world"})
+  res.send({ test: "hello world" });
 });
 
 /* Append /api for HTTP requests */
