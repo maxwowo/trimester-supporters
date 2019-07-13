@@ -29,16 +29,6 @@ router.get("/test", (req, res) => {
   res.send({ test: "hello world" });
 });
 
-function parseMain(str) {
-  //var json = JSON.parse(str);
-  return str.route;
-}
-
-function parseAlternate(str) {
-  var json = JSON.parse(str);
-  return json.route.shape.shapePoints;
-}
-
 router.get("/route", (req, res) => {
   // getUser();
   const { start, end } = req.query;
@@ -50,26 +40,56 @@ router.get("/route", (req, res) => {
       const everything = [];
       everything.push(result.data.route.shape.shapePoints);
 
-      for (let i = 0; i < result.data.route.alternateRoutes.length; i++) {
-        everything.push(result.data.route.alternateRoutes[i].route.shape.shapePoints);
+      if (result.data.route.alternateRoutes !== undefined) {
+        for (let i = 0; i < result.data.route.alternateRoutes.length; i++) {
+          everything.push(result.data.route.alternateRoutes[i].route.shape.shapePoints);
+        }
       }
 
-      for (let i = 0; i < everything.length; i++) {
-        axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + everything[i].join(",")).then(result2 => {
-          const elevationProfile = result2.data.elevationProfile;
-          const heights = [];
+      everything.sort((a, b) => {
+        axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + a.join(",")).then(result2 => {
+          axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + b.join(",")).then(result3 => {
+            const ep1 = result2.data.elevationProfile;
+            const ep2 = result3.data.elevationProfile;
+            const h1 = [];
+            const h2 = [];
+            let d1 = 0;
+            let d2 = 0;
 
-          for (let i = 0; i < elevationProfile.length; i++) {
-            heights.push(elevationProfile[i].height);
-          }
+            for (let i = 0; i < ep1.length; i++) {
+              h1.push(ep1[i].height);
+              d1 += ep1[i].distance;
+            }
 
-          const diff = Math.max(...heights) - Math.min(...heights);
+            for (let i = 0; i < ep2.length; i++) {
+              h2.push(ep2[i].height);
+              d2 += ep2[i].distance;
+            }
 
-          if (diff < 3) {
-            res.send({ route: everything[i] });
-          }
+            const diff1 = Math.max(...h1) - Math.min(...h1);
+            const diff2 = Math.max(...h2) - Math.min(...h2);
+
+            return (d1 * diff1) - (d2 * diff2);
+          });
         });
-      }
+      });
+
+      // for (let i = 0; i < everything.length; i++) {
+      //   axios.get("http://open.mapquestapi.com/elevation/v1/profile?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&shapeFormat=raw&latLngCollection=" + everything[i].join(",")).then(result2 => {
+      //     const elevationProfile = result2.data.elevationProfile;
+      //     const heights = [];
+      //
+      //     for (let i = 0; i < elevationProfile.length; i++) {
+      //       heights.push(elevationProfile[i].height);
+      //     }
+      //
+      //     const diff = Math.max(...heights) - Math.min(...heights);
+      //
+      //     if (diff < 3) {
+      //       res.send({ route: everything[i] });
+      //     }
+      //   });
+      // }
       res.send({ route: everything[0] });
     });
   // res.send({ route: getUser() });
