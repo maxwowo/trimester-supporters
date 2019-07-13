@@ -13,7 +13,7 @@ function App() {
     <Router>
       <Layout id="app-layout">
         <Navbar/>
-        <Layout>
+        <Layout style={{height: "100%"}}>
           <Routes/>
         </Layout>
       </Layout>

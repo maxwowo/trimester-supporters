@@ -25,13 +25,13 @@ const Navbar = () => (
 
       <Col>
         <Link to="/">
-          Google Maps
+          App Title
         </Link>
       </Col>
 
       <Col>
         <Icon className="icon" type="github" onClick={() => {
-          window.open("https://github.com/maxwowo/examplar", "_blank");
+          window.open("https://github.com/maxwowo/trimester-supporters", "_blank");
         }}/>
       </Col>
 
