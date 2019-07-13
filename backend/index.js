@@ -1,7 +1,11 @@
+// MapQuest API Key:zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld
+
 /* Load packages */
 const express = require("express");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
+const http = require("http");
+const axios = require("axios");
 
 /* App initialization */
 const API_PORT = 3001;
@@ -13,8 +17,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger("dev"));
 
+function getUser() {
+  return axios
+    .get(
+      "https://www.mapquestapi.com/directions/v2/alternateroutes?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&from=-33.92403%2C+151.2226&to=-33.92301%2C+151.2255&outFormat=json&ambiguities=check&routeType=pedestrian&maxRoutes=10&timeOverage=200&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false&unit=M"
+    )
+    .then(res => console.log(res.data));
+}
+
 router.get("/test", (req, res) => {
   res.send({ test: "hello world" });
+});
+
+router.get("/route", (req, res) => {
+  // getUser();
+  axios
+    .get(
+      "https://www.mapquestapi.com/directions/v2/alternateroutes?key=zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld&from=-33.92403%2C+151.2226&to=-33.92301%2C+151.2255&outFormat=json&ambiguities=check&routeType=pedestrian&maxRoutes=10&timeOverage=200&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false&unit=M"
+    )
+    .then(result => res.send(result.data));
+
+  // res.send({ route: getUser() });
 });
 
 /* Append /api for HTTP requests */
