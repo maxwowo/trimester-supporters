@@ -1,5 +1,3 @@
-// MapQuest API Key:zJpb9Bpr0ZKKnZhqfWvxoxj9hKKB6Sld
-
 /* Load packages */
 const express = require("express");
 const bodyParser = require("body-parser");
