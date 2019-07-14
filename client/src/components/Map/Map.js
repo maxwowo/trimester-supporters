@@ -51,9 +51,12 @@ class Map extends Component {
   };
 
   handleOnStartResult = event => {
-    console.log(event);
     this.setState({ startCoord: event.result.geometry.coordinates });
     this.setState({ startName: event.result.place_name });
+    this.setPoints();
+  };
+
+  setPoints = () => {
     if (this.state.startCoord !== null && this.state.endCoord !== null) {
       Axios.get("/api/route", {
         params: {
@@ -80,61 +83,12 @@ class Map extends Component {
             this.setState({ points: route });
           });
     }
-    this.setState({
-      searchResultLayer: new GeoJsonLayer({
-        id: "search-result",
-        data: event.result.geometry,
-        getFillColor: [255, 0, 0, 128],
-        getRadius: 1000,
-        pointRadiusMinPixels: 10,
-        pointRadiusMaxPixels: 10
-      })
-    });
   };
 
   handleOnEndResult = event => {
-    if (event.result === undefined) {
-      this.setState({ endCoord: event.ok });
-    } else {
-      this.setState({ endCoord: event.result.geometry.coordinates });
-      this.setState({ endName: event.result.place_name });
-    }
-    if (this.state.startCoord !== null && this.state.endCoord !== null) {
-      Axios.get("/api/route", {
-        params: {
-          start: this.state.startCoord,
-          end: this.state.endCoord
-        }
-      })
-        .then(
-          res => {
-            const returned_array = [...res.data.route];
-
-            if (res.data.freakout) {
-              alert("There is a segment which is too steep, we suggest using public transport.");
-              return;
-            }
-
-            const route = [];
-            for (let i = 1; i < returned_array.length; i += 2) {
-              const a = returned_array[i - 1];
-              const b = returned_array[i];
-              route.push([b, a]);
-            }
-
-            this.setState({ points: route });
-          });
-    }
-    this.setState({
-      searchResultLayer: new GeoJsonLayer({
-        id: "search-result",
-        data: event.result.geometry,
-        getFillColor: [255, 0, 0, 128],
-        getRadius: 1000,
-        pointRadiusMinPixels: 10,
-        pointRadiusMaxPixels: 10
-      })
-    });
+    this.setState({ endCoord: event.result.geometry.coordinates });
+    this.setState({ endName: event.result.place_name });
+    this.setPoints();
   };
 
   render() {
@@ -197,7 +151,7 @@ class Map extends Component {
             </Button>
             }
             {this.state.favourite_routes.length !== 0 &&
-            <Typography.Title level={3} style={{marginTop: 20}}>Favourite routes</Typography.Title>
+            <Typography.Title level={3} style={{ marginTop: 20 }}>Favourite routes</Typography.Title>
             }
             {this.state.favourite_routes.map((route, i) => (
               <div style={{
@@ -210,6 +164,10 @@ class Map extends Component {
                    className="linkDiv"
                    key={i}
                    onClick={() => {
+                     this.setState({ startCoord: route.fromCoord });
+                     this.setState({ startName: route.from });
+                     this.setState({ endCoord: route.endCoord });
+                     this.setState({ endName: route.to });
                      this.handleOnEndResult({ ok: [route.fromCoord, route.endCoord] });
                    }}
               >
