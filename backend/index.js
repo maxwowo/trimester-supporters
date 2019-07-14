@@ -75,7 +75,7 @@ router.get("/route", (req, res) => {
           max_instantaneous_change = Math.max(max_instantaneous_change, ep[i - 1].height - ep[i].height);
         }
 
-        if (max_instantaneous_change > 8) {
+        if (max_instantaneous_change > 15) {
           res.send({ route: everything[0], freakout: true });
         } else {
           res.send({ route: everything[0], freakout: false });
