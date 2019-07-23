@@ -1,5 +1,4 @@
 import React from "react";
-import Axios from "axios";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Layout } from "antd";
 import Routes from "../Routes";
@@ -11,7 +10,7 @@ function App() {
     <Router>
       <Layout id="app-layout">
         <Layout style={{ height: "100%" }}>
-          <Routes/>
+          <Routes />
         </Layout>
       </Layout>
     </Router>
